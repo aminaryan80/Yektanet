@@ -15,7 +15,7 @@
                 <div class="row">
 		    {% for ad in advertiser.ad_set.all %}
 		        <div class="card col-md-2 p-0 mx-2">
-		            <a href="{% url 'click_task_view' ad.id %}">
+		            <a href="{% url 'advertiser_management:click_task_view' ad.id %}">
 		                <img src="{{ ad.img_url.url }}"
 		                     class="card-img-top" alt="{{ ad.title }}">
 		                <div class="card-body">

@@ -1,5 +1,6 @@
 from django.shortcuts import render, get_object_or_404
-from django.views.generic import RedirectView
+from django.urls import reverse
+from django.views.generic import RedirectView, CreateView
 
 from .models import Advertiser, Ad
 
@@ -15,7 +16,7 @@ def index(request):
 
 
 class ClickTaskView(RedirectView):
-    pattern_name = 'ad_view'
+    pattern_name = 'advertiser_management:ad_view'
 
     def get_redirect_url(self, *args, **kwargs):
         ad = get_object_or_404(Ad, pk=kwargs['ad_id'])
@@ -28,3 +29,9 @@ def ad(request, ad_id):
         'ad': get_object_or_404(Ad, pk=ad_id)
     }
     return render(request, 'advertiser_management/ad.html', context)
+
+
+class CreateNewAd(CreateView):
+    model = Ad
+    template_name = 'advertiser_management/new_ad.html'
+    fields = ('advertiser', 'title', 'img_url')

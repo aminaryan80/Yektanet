@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Create a new ad</title>
+</head>
+<body>
+<form action="{% url 'advertiser_management:create_new_ad' %}" method="POST" enctype="multipart/form-data">
+    {% csrf_token %}<br>
+    {{ form.as_p }}
+    <button>Create</button>
+</form>
+
+</body>
+</html>

@@ -1,4 +1,5 @@
 from django.db import models
+from django.urls import reverse
 
 
 class Advertiser(models.Model):
@@ -31,3 +32,6 @@ class Ad(models.Model):
         self.clicks += 1
         self.save()
         self.advertiser.inc_clicks()
+
+    def get_absolute_url(self):
+        return reverse('advertiser_management:ad_view', args=(self.id,))
