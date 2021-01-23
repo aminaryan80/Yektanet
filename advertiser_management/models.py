@@ -6,6 +6,14 @@ class Advertiser(models.Model):
     clicks = models.IntegerField(default=0, null=False)
     views = models.IntegerField(default=0, null=False)
 
+    def inc_views(self):
+        self.views += 1
+        self.save()
+
+    def inc_clicks(self):
+        self.clicks += 1
+        self.save()
+
 
 class Ad(models.Model):
     advertiser = models.ForeignKey(Advertiser, on_delete=models.CASCADE)
@@ -17,7 +25,9 @@ class Ad(models.Model):
     def inc_views(self):
         self.views += 1
         self.save()
+        self.advertiser.inc_views()
 
     def inc_clicks(self):
         self.clicks += 1
         self.save()
+        self.advertiser.inc_clicks()
