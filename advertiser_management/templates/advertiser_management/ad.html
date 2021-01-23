@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+          crossorigin="anonymous">
+    <title>{{ ad.title }}</title>
+</head>
+<body>
+<div class="card col-md-2 p-0 mx-2" style="margin: 8px">
+    <img src="{{ ad.img_url.url }}"
+         class="card-img-top" alt="{{ ad.title }}">
+    <div class="card-body">
+        <span>{{ ad.title }}</span><br/>
+        <span>views: {{ ad.views }}</span><br/>
+        <span>clicks: {{ ad.clicks }}</span><br/>
+    </div>
+</div>
+</body>
+</html>

@@ -13,3 +13,11 @@ class Ad(models.Model):
     img_url = models.ImageField(upload_to="ads/")
     clicks = models.IntegerField(default=0, null=False)
     views = models.IntegerField(default=0, null=False)
+
+    def inc_views(self):
+        self.views += 1
+        self.save()
+
+    def inc_clicks(self):
+        self.clicks += 1
+        self.save()
