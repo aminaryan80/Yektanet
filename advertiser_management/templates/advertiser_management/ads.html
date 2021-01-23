@@ -13,21 +13,24 @@
             <h5 class="card-title">{{ advertiser.name }}</h5>
             <div class="card-body">
                 <div class="row">
-		    {% for ad in advertiser.ad_set.all %}
-		        <div class="card col-md-2 p-0 mx-2">
-		            <a href="{% url 'advertiser_management:click_task_view' ad.id %}">
-		                <img src="{{ ad.img_url.url }}"
-		                     class="card-img-top" alt="{{ ad.title }}">
-		                <div class="card-body">
-		                    <span>{{ ad.title }}</span>
-		                </div>
-		            </a>
-		        </div>
-		    {% endfor %}
+                    {% for ad in advertiser.ad_set.all %}
+                        <div class="card col-md-2 p-0 mx-2" style="margin-bottom: 8px">
+                            <a href="{% url 'advertiser_management:click_task_view' ad.id %}">
+                                <img src="{{ ad.img_url.url }}"
+                                     class="card-img-top" alt="{{ ad.title }}">
+                                <div class="card-body">
+                                    <span>{{ ad.title }}</span>
+                                </div>
+                            </a>
+                        </div>
+                    {% endfor %}
                 </div>
             </div>
         </div>
     {% endfor %}
+    <div class="card mt-2 p-2" style="margin-bottom: 8px">
+        <a href="{% url 'advertiser_management:create_new_ad' %}" style="text-align: center">Create a new ad</a>
+    </div>
 </div>
 </body>
 </html>

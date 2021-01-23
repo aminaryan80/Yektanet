@@ -7,6 +7,9 @@ class Advertiser(models.Model):
     clicks = models.IntegerField(default=0, null=False)
     views = models.IntegerField(default=0, null=False)
 
+    def __str__(self):
+        return self.name
+
     def inc_views(self):
         self.views += 1
         self.save()
