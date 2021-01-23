@@ -1,6 +1,10 @@
-from django.http import HttpResponse
 from django.shortcuts import render
+
+from .models import Advertiser
 
 
 def index(request):
-    return HttpResponse("Hello world!")
+    context = {
+        'advertisers': Advertiser.objects.all()
+    }
+    return render(request, 'advertiser_management/ads.html', context)
