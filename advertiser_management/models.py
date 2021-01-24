@@ -2,10 +2,16 @@ from django.db import models
 from django.urls import reverse
 
 
-class Advertiser(models.Model):
-    name = models.CharField(max_length=200)
+class BaseAdvertising(models.Model):
     clicks = models.IntegerField(default=0, null=False)
     views = models.IntegerField(default=0, null=False)
+
+    class Meta:
+        abstract = True
+
+
+class Advertiser(BaseAdvertising):
+    name = models.CharField(max_length=200)
 
     def __str__(self):
         return self.name
@@ -19,12 +25,10 @@ class Advertiser(models.Model):
         self.save()
 
 
-class Ad(models.Model):
+class Ad(BaseAdvertising):
     advertiser = models.ForeignKey(Advertiser, on_delete=models.CASCADE)
     title = models.CharField(max_length=200)
     img_url = models.ImageField(upload_to="ads/")
-    clicks = models.IntegerField(default=0, null=False)
-    views = models.IntegerField(default=0, null=False)
 
     def inc_views(self):
         self.views += 1
