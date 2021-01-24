@@ -1,12 +1,8 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
-          crossorigin="anonymous">
-    <title>{{ ad.title }}</title>
-</head>
-<body>
+{% extends 'advertiser_management/base.html' %}
+
+{% block title %}{{ ad.title }}{% endblock %}
+
+{% block content %}
 <div class="card col-md-2 p-0 mx-2" style="margin: 8px">
     <img src="{{ ad.img_url.url }}"
          class="card-img-top" alt="{{ ad.title }}">
@@ -17,5 +13,4 @@
     </div>
     <a href="{% url 'advertiser_management:index' %}" class="btn btn-secondary" style="text-align: center; margin: 8px">Back to ads</a>
 </div>
-</body>
-</html>
+{% endblock %}
