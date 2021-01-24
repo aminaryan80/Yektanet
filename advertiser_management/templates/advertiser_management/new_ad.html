@@ -3,12 +3,15 @@
 {% block title %}Create a new ad{% endblock %}
 
 {% block content %}
-    <div style="margin-left: 32px">
-        <form action="{% url 'advertiser_management:create_new_ad' %}" method="POST" enctype="multipart/form-data">
-            {% csrf_token %}<br>
-            {{ form.as_p }}
-            <button type="submit" class="btn btn-success">Create</button>
-            <a href="{% url 'advertiser_management:index' %}" class="btn btn-danger" style="text-align: center; margin: 8px">Back to ads</a>
-        </form>
+    <div class="container">
+        <div class="form-group">
+            <form action="{% url 'advertiser_management:create_new_ad' %}" method="POST" enctype="multipart/form-data">
+                {% csrf_token %}<br>
+                {{ form.as_p }}
+                <button type="submit" class="btn btn-success">Create</button>
+                <a href="{% url 'advertiser_management:index' %}" class="btn btn-danger"
+                   style="text-align: center; margin: 8px">Back to ads</a>
+            </form>
+        </div>
     </div>
 {% endblock %}

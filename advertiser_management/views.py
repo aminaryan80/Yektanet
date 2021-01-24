@@ -1,6 +1,7 @@
 from django.shortcuts import render, get_object_or_404
 from django.views.generic import RedirectView, CreateView
 
+from .forms import CreateNewAdForm
 from .models import Advertiser, Ad
 
 
@@ -32,5 +33,6 @@ def ad(request, ad_id):
 
 class CreateNewAd(CreateView):
     model = Ad
+    form_class = CreateNewAdForm
     template_name = 'advertiser_management/new_ad.html'
-    fields = ('advertiser', 'title', 'img_url')
+    # fields = ('advertiser', 'title', 'img_url')
