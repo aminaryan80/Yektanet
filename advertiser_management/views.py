@@ -1,8 +1,12 @@
+from datetime import datetime, timedelta
+
+import pytz
+from django.db.models import Min
 from django.shortcuts import render, get_object_or_404
-from django.views.generic import RedirectView, CreateView, DetailView
+from django.views.generic import RedirectView, CreateView, DetailView, ListView
 
 from .forms import CreateNewAdForm
-from .models import Advertiser, Ad
+from .models import Advertiser, Ad, Click, View
 
 
 def index(request):
@@ -35,15 +39,44 @@ class OpenAdView(DetailView):
         return context
 
 
-#
-# def ad(request, ad_id):
-#     context = {
-#         'ad': get_object_or_404(Ad, pk=ad_id)
-#     }
-#     return render(request, 'advertiser_management/ad.html', context)
-
-
 class CreateNewAdView(CreateView):
     model = Ad
     form_class = CreateNewAdForm
     template_name = 'advertiser_management/new_ad.html'
+
+
+def get_sum_actions(context):
+    ads = Ad.objects.filter(approve=True)
+    for ad in ads:
+        context['actions'][ad] = {}
+        utc = pytz.UTC
+        oldest_click_time = Click.objects.filter(ad=ad).aggregate(Min('time'))['time__min']
+        start_date = datetime.now()
+        while oldest_click_time.replace(tzinfo=utc) < start_date.replace(tzinfo=utc):
+            end_date = start_date - timedelta(hours=1)
+            clicks = Click.objects.filter(time__range=[end_date, start_date], ad=ad)
+            views = View.objects.filter(time__range=[end_date, start_date], ad=ad)
+            clicks_count = clicks.count()
+            views_count = views.count()
+            if clicks_count > 0 or views_count > 0:
+                print("\n\nad: " + str(ad.title) + "\n" + str(start_date) + " - " + str(end_date) + "\n" +
+                      str(clicks_count) + "\n\n")
+                print("\n" + str(start_date))
+                context['actions'][ad][str(start_date)] = [str(end_date), clicks_count, views_count]
+            start_date -= timedelta(hours=1)
+
+
+class ReportView(ListView):
+    queryset = Ad.objects.filter(approve=True)
+    template_name = 'advertiser_management/report.html'
+    context_object_name = 'ads'
+    paginate_by = 10
+
+    def get_context_data(self, **kwargs):
+        ads = Ad.objects.filter(approve=True)
+        context = {
+            'ads': ads,
+            'actions': {},
+        }
+        get_sum_actions(context)
+        return context

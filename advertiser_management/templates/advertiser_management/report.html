@@ -3,14 +3,29 @@
 {% block title %}{{ ad.title }}{% endblock %}
 
 {% block content %}
-<div class="card col-md-2 p-0 mx-2" style="margin: 8px">
-    <img src="{{ ad.img_url.url }}"
-         class="card-img-top" alt="{{ ad.title }}">
-    <div class="card-body">
-        <span>{{ ad.title }}</span><br/>
-        <span>views: {{ ad.get_views }}</span><br/>
-        <span>clicks: {{ ad.get_clicks }}</span><br/>
+    <div class="container">
+        {% for ad, clickSums in actions.items %}
+            {{ ad.title }}:
+            <table class="table table-hover">
+                <thead>
+                <tr class="table-active">
+                    <th scope="col" style="width: 25%">Start Time</th>
+                    <th scope="col" style="width: 25%">End Time</th>
+                    <th scope="col" style="width: 25%">Clicks</th>
+                    <th scope="col" style="width: 25%">Views</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for k, v in clickSums.items %}
+                    <tr>
+                        <td>{{ v.0 }}</td>
+                        <td>{{ k }}</td>
+                        <td>{{ v.1 }}</td>
+                        <td>{{ v.2 }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        {% endfor %}
     </div>
-    <a href="{% url 'advertiser_management:index' %}" class="btn btn-secondary" style="text-align: center; margin: 8px">Back to ads</a>
-</div>
 {% endblock %}

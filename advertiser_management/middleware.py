@@ -19,7 +19,7 @@ class ViewAdMiddleware:
         self.get_response = get_response
 
     def __call__(self, request):
-        match = re.match("/advertiser_management/$", request.path)
+        match = re.match("(?!admin)/advertiser_management/$", request.path)
         if match:
             ads = Ad.objects.all()
             for ad in ads:
@@ -35,7 +35,7 @@ class ClickAdMiddleware:
         self.get_response = get_response
 
     def __call__(self, request):
-        match = re.match("/advertiser_management/click/(\\d+)/$", request.path)
+        match = re.match("(?!admin)/advertiser_management/click/(\\d+)/$", request.path)
         if match:
             ad = Ad.objects.get(pk=match.group(1))
             click = Click.objects.create(ad=ad, time=timezone.now(), ip=get_ip(request))
