@@ -8,8 +8,8 @@
          class="card-img-top" alt="{{ ad.title }}">
     <div class="card-body">
         <span>{{ ad.title }}</span><br/>
-        <span>views: {{ ad.views }}</span><br/>
-        <span>clicks: {{ ad.clicks }}</span><br/>
+        <span>views: {{ ad.get_views }}</span><br/>
+        <span>clicks: {{ ad.get_clicks }}</span><br/>
     </div>
     <a href="{% url 'advertiser_management:index' %}" class="btn btn-secondary" style="text-align: center; margin: 8px">Back to ads</a>
 </div>

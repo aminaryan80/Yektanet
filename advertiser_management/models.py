@@ -18,6 +18,14 @@ class Ad(models.Model):
     def get_absolute_url(self):
         return reverse('advertiser_management:ad_view', args=(self.id,))
 
+    def get_clicks(self):
+        clicks = Click.objects.filter(ad=self)
+        return clicks.count()
+
+    def get_views(self):
+        views = View.objects.filter(ad=self)
+        return views.count()
+
 
 class BaseAdActions(models.Model):
     ad = models.ForeignKey(Ad, on_delete=models.CASCADE)
