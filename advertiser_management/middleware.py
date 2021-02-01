@@ -23,8 +23,9 @@ class ViewAdMiddleware:
         if match:
             ads = Ad.objects.all()
             for ad in ads:
-                view = View.objects.create(ad=ad, time=timezone.now(), ip=get_ip(request))
-                view.save()
+                if ad.approve:
+                    view = View.objects.create(ad=ad, time=timezone.now(), ip=get_ip(request))
+                    view.save()
         response = self.get_response(request)
         return response
 
