@@ -6,9 +6,9 @@ from .models import Advertiser, Ad
 
 
 def index(request):
-    for advertiser in Advertiser.objects.all():
-        for ad in advertiser.ad_set.all():
-            ad.inc_views()
+    # for advertiser in Advertiser.objects.all():
+    #     # for ad in advertiser.ad_set.all():
+    #     #     ad.inc_views()
     context = {
         'advertisers': Advertiser.objects.all()
     }
@@ -19,8 +19,8 @@ class ClickTaskView(RedirectView):
     pattern_name = 'advertiser_management:ad_view'
 
     def get_redirect_url(self, *args, **kwargs):
-        ad = get_object_or_404(Ad, pk=kwargs['ad_id'])
-        ad.inc_clicks()
+        # ad = get_object_or_404(Ad, pk=kwargs['ad_id'])
+        # ad.inc_clicks()
         return super().get_redirect_url(*args, **kwargs)
 
 
@@ -35,4 +35,3 @@ class CreateNewAd(CreateView):
     model = Ad
     form_class = CreateNewAdForm
     template_name = 'advertiser_management/new_ad.html'
-    # fields = ('advertiser', 'title', 'img_url')
