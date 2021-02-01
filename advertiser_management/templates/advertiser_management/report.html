@@ -1,0 +1,16 @@
+{% extends 'advertiser_management/base.html' %}
+
+{% block title %}{{ ad.title }}{% endblock %}
+
+{% block content %}
+<div class="card col-md-2 p-0 mx-2" style="margin: 8px">
+    <img src="{{ ad.img_url.url }}"
+         class="card-img-top" alt="{{ ad.title }}">
+    <div class="card-body">
+        <span>{{ ad.title }}</span><br/>
+        <span>views: {{ ad.get_views }}</span><br/>
+        <span>clicks: {{ ad.get_clicks }}</span><br/>
+    </div>
+    <a href="{% url 'advertiser_management:index' %}" class="btn btn-secondary" style="text-align: center; margin: 8px">Back to ads</a>
+</div>
+{% endblock %}
