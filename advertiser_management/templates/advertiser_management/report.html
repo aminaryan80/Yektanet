@@ -11,17 +11,20 @@
                 <tr class="table-active">
                     <th scope="col" style="width: 25%">Start Time</th>
                     <th scope="col" style="width: 25%">End Time</th>
-                    <th scope="col" style="width: 25%">Clicks</th>
-                    <th scope="col" style="width: 25%">Views</th>
+                    <th scope="col" style="width: 16.6%">Clicks</th>
+                    <th scope="col" style="width: 16.6%">Views</th>
+                    <th scope="col" style="width: 16.7%">Views</th>
                 </tr>
                 </thead>
                 <tbody>
+                {{ clickSums }}
                 {% for k, v in clickSums.items %}
                     <tr>
-                        <td>{{ v.0 }}</td>
                         <td>{{ k }}</td>
+                        <td>{{ v.0 }}</td>
                         <td>{{ v.1 }}</td>
                         <td>{{ v.2 }}</td>
+                        <td>{{ v.3|floatformat:3 }}</td>
                     </tr>
                 {% endfor %}
                 </tbody>

@@ -1,7 +1,8 @@
+import collections
 from datetime import datetime, timedelta
 
-import pytz
-from django.db.models import Min
+from django.db.models import Min, Count
+from django.db.models.functions import TruncHour
 from django.shortcuts import render, get_object_or_404
 from django.views.generic import RedirectView, CreateView, DetailView, ListView
 
@@ -45,25 +46,39 @@ class CreateNewAdView(CreateView):
     template_name = 'advertiser_management/new_ad.html'
 
 
-def get_sum_actions(context):
+def get_action_properties(context):
     ads = Ad.objects.filter(approve=True)
     for ad in ads:
         context['actions'][ad] = {}
-        utc = pytz.UTC
         oldest_click_time = Click.objects.filter(ad=ad).aggregate(Min('time'))['time__min']
         start_date = datetime.now()
-        while oldest_click_time.replace(tzinfo=utc) < start_date.replace(tzinfo=utc):
-            end_date = start_date - timedelta(hours=1)
-            clicks = Click.objects.filter(time__range=[end_date, start_date], ad=ad)
-            views = View.objects.filter(time__range=[end_date, start_date], ad=ad)
-            clicks_count = clicks.count()
-            views_count = views.count()
-            if clicks_count > 0 or views_count > 0:
-                print("\n\nad: " + str(ad.title) + "\n" + str(start_date) + " - " + str(end_date) + "\n" +
-                      str(clicks_count) + "\n\n")
-                print("\n" + str(start_date))
-                context['actions'][ad][str(start_date)] = [str(end_date), clicks_count, views_count]
-            start_date -= timedelta(hours=1)
+        action = {}
+        clicks = Click.objects.annotate(
+            hour=TruncHour('time')).values('hour').filter(ad=ad).annotate(
+            clicks=Count('id'))
+        views = View.objects.annotate(
+            hour=TruncHour('time')).values('hour').filter(ad=ad).annotate(
+            views=Count('id'))
+        for v in views:
+            # action[v['hour']] = [v['hour'] + timedelta(hours=1), 0, v['views']]
+            action[v['hour']] = v['views']
+        for c in clicks:
+            action[c['hour']] = c['clicks']
+        context['actions'][ad] = sorted(action.items(), key=lambda t: t[0])
+        # while oldest_click_time.replace(tzinfo=pytz.UTC) < start_date.replace(tzinfo=pytz.UTC):
+        #     end_date = start_date - timedelta(hours=1)
+        #     # clicks = Click.objects.filter(time__range=[end_date, start_date], ad=ad)
+        #     views = View.objects.filter(time__range=[end_date, start_date], ad=ad)
+        #     clicks_count = clicks.count()
+        #     views_count = views.count()
+        #     if clicks_count > 0 or views_count > 0:
+        #         # print("\n\nad: " + str(ad.title) + "\n" + str(start_date) + " - " + str(end_date) + "\n" +
+        #         #       str(clicks_count) + "\n\n")
+        #         # print("\n" + str(start_date))
+        #         context['actions'][ad][str(start_date)] = [str(end_date), clicks_count, views_count ]
+        #                                                    clicks_count / views_count]
+        #     start_date -= timedelta(hours=1)
+    # print("\n\n" + str(context['actions']) + "\n\n")
 
 
 class ReportView(ListView):
@@ -78,5 +93,5 @@ class ReportView(ListView):
             'ads': ads,
             'actions': {},
         }
-        get_sum_actions(context)
+        get_action_properties(context)
         return context
