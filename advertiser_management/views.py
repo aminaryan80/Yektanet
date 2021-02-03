@@ -53,32 +53,38 @@ def get_action_properties(context):
         oldest_click_time = Click.objects.filter(ad=ad).aggregate(Min('time'))['time__min']
         start_date = datetime.now()
         action = {}
-        clicks = Click.objects.annotate(
-            hour=TruncHour('time')).values('hour').filter(ad=ad).annotate(
+        clicks_count = 0
+        views_count = 0
+        clicks = Click.objects.filter(ad=ad).annotate(hour=TruncHour('time')).values('hour').annotate(
             clicks=Count('id'))
-        views = View.objects.annotate(
-            hour=TruncHour('time')).values('hour').filter(ad=ad).annotate(
-            views=Count('id'))
+        views = View.objects.filter(ad=ad).annotate(hour=TruncHour('time')).values('hour').annotate(views=Count('id'))
         for v in views:
-            # action[v['hour']] = [v['hour'] + timedelta(hours=1), 0, v['views']]
-            action[v['hour']] = v['views']
+            action[v['hour']] = [v['hour'] + timedelta(hours=1), 0, v['views'], 0]
+            views_count += v['views']
         for c in clicks:
-            action[c['hour']] = c['clicks']
-        context['actions'][ad] = sorted(action.items(), key=lambda t: t[0])
-        # while oldest_click_time.replace(tzinfo=pytz.UTC) < start_date.replace(tzinfo=pytz.UTC):
-        #     end_date = start_date - timedelta(hours=1)
-        #     # clicks = Click.objects.filter(time__range=[end_date, start_date], ad=ad)
-        #     views = View.objects.filter(time__range=[end_date, start_date], ad=ad)
-        #     clicks_count = clicks.count()
-        #     views_count = views.count()
-        #     if clicks_count > 0 or views_count > 0:
-        #         # print("\n\nad: " + str(ad.title) + "\n" + str(start_date) + " - " + str(end_date) + "\n" +
-        #         #       str(clicks_count) + "\n\n")
-        #         # print("\n" + str(start_date))
-        #         context['actions'][ad][str(start_date)] = [str(end_date), clicks_count, views_count ]
-        #                                                    clicks_count / views_count]
-        #     start_date -= timedelta(hours=1)
-    # print("\n\n" + str(context['actions']) + "\n\n")
+            action[c['hour']][1] = c['clicks']
+            action[c['hour']][3] = c['clicks'] / action[c['hour']][2]
+            clicks_count += c['clicks']
+        context['actions'][ad]['action'] = sorted(action.items(), reverse=True, key=lambda t: t[1])
+        context['actions'][ad]['cpv'] = clicks_count / views_count
+
+
+def get_avg_click_view(context):
+    ads = Ad.objects.filter(approve=True)
+    for ad in ads:
+        clicks = Click.objects.filter(ad=ad)
+        sum_diff = 0
+        for click in clicks:
+            v = None
+            views = View.objects.filter(ad=ad, ip=click.ip).order_by('time')
+            for view in views:
+                if (v is None) or (view.ip == click.ip and click.time > view.time > v.time):
+                    v = view
+            sum_diff += (click.time - v.time).seconds
+        avg = -1
+        if clicks.count() > 0:
+            avg = sum_diff / clicks.count()
+        context['avg'][ad] = avg
 
 
 class ReportView(ListView):
@@ -92,6 +98,8 @@ class ReportView(ListView):
         context = {
             'ads': ads,
             'actions': {},
+            'avg': {},
         }
         get_action_properties(context)
+        get_avg_click_view(context)
         return context
