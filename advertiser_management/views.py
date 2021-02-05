@@ -1,25 +1,15 @@
-from datetime import datetime, timedelta
+from datetime import timedelta
 
-from django.db.models import Min, Count
+from django.db.models import Count
 from django.db.models.functions import TruncHour
 from django.shortcuts import render, get_object_or_404
 from django.views.generic import RedirectView, CreateView, DetailView, ListView, TemplateView
 from rest_framework.authentication import BasicAuthentication, SessionAuthentication
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
 from rest_framework.views import APIView
 
 from .forms import CreateNewAdForm
 from .models import Advertiser, Ad, Click, View
-
-
-def index(request):
-    # for advertiser in Advertiser.objects.all():
-    #     # for ad in advertiser.ad_set.all():
-    #     #     ad.inc_views()
-    context = {
-        'advertisers': Advertiser.objects.all()
-    }
-    return render(request, 'advertiser_management/ads.html', context)
 
 
 class AdsView(TemplateView, APIView):
@@ -37,8 +27,6 @@ class ClickTaskView(RedirectView):
     pattern_name = 'advertiser_management:ad_view'
 
     def get_redirect_url(self, *args, **kwargs):
-        # ad = get_object_or_404(Ad, pk=kwargs['ad_id'])
-        # ad.inc_clicks()
         return super().get_redirect_url(*args, **kwargs)
 
 
@@ -46,7 +34,7 @@ class OpenAdView(DetailView, APIView):
     model = Ad
     template_name = 'advertiser_management/ad.html'
     authentication_classes = [SessionAuthentication, BasicAuthentication]
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
 
     def get_context_data(self, **kwargs):
         context = {
@@ -60,15 +48,13 @@ class CreateNewAdView(CreateView, APIView):
     form_class = CreateNewAdForm
     template_name = 'advertiser_management/new_ad.html'
     authentication_classes = [SessionAuthentication, BasicAuthentication]
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAdminUser]
 
 
 def get_action_properties(context):
     ads = Ad.objects.filter(approve=True)
     for ad in ads:
         context['actions'][ad] = {}
-        oldest_click_time = Click.objects.filter(ad=ad).aggregate(Min('time'))['time__min']
-        start_date = datetime.now()
         action = {}
         clicks_count = 0
         views_count = 0
@@ -109,7 +95,7 @@ class ReportView(ListView, APIView):
     template_name = 'advertiser_management/report.html'
     context_object_name = 'ads'
     authentication_classes = [SessionAuthentication, BasicAuthentication]
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAdminUser]
 
     def get_context_data(self, **kwargs):
         ads = Ad.objects.filter(approve=True)
