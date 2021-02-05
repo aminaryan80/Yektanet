@@ -1,10 +1,12 @@
-import collections
 from datetime import datetime, timedelta
 
 from django.db.models import Min, Count
 from django.db.models.functions import TruncHour
 from django.shortcuts import render, get_object_or_404
-from django.views.generic import RedirectView, CreateView, DetailView, ListView
+from django.views.generic import RedirectView, CreateView, DetailView, ListView, TemplateView
+from rest_framework.authentication import BasicAuthentication, SessionAuthentication
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.views import APIView
 
 from .forms import CreateNewAdForm
 from .models import Advertiser, Ad, Click, View
@@ -20,6 +22,17 @@ def index(request):
     return render(request, 'advertiser_management/ads.html', context)
 
 
+class AdsView(TemplateView, APIView):
+    authentication_classes = [SessionAuthentication, BasicAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        context = {
+            'advertisers': Advertiser.objects.all()
+        }
+        return render(request, 'advertiser_management/ads.html', context)
+
+
 class ClickTaskView(RedirectView):
     pattern_name = 'advertiser_management:ad_view'
 
@@ -29,9 +42,11 @@ class ClickTaskView(RedirectView):
         return super().get_redirect_url(*args, **kwargs)
 
 
-class OpenAdView(DetailView):
+class OpenAdView(DetailView, APIView):
     model = Ad
     template_name = 'advertiser_management/ad.html'
+    authentication_classes = [SessionAuthentication, BasicAuthentication]
+    permission_classes = [IsAuthenticated]
 
     def get_context_data(self, **kwargs):
         context = {
@@ -40,10 +55,12 @@ class OpenAdView(DetailView):
         return context
 
 
-class CreateNewAdView(CreateView):
+class CreateNewAdView(CreateView, APIView):
     model = Ad
     form_class = CreateNewAdForm
     template_name = 'advertiser_management/new_ad.html'
+    authentication_classes = [SessionAuthentication, BasicAuthentication]
+    permission_classes = [IsAuthenticated]
 
 
 def get_action_properties(context):
@@ -87,11 +104,12 @@ def get_avg_click_view(context):
         context['avg'][ad] = avg
 
 
-class ReportView(ListView):
+class ReportView(ListView, APIView):
     queryset = Ad.objects.filter(approve=True)
     template_name = 'advertiser_management/report.html'
     context_object_name = 'ads'
-    paginate_by = 10
+    authentication_classes = [SessionAuthentication, BasicAuthentication]
+    permission_classes = [IsAuthenticated]
 
     def get_context_data(self, **kwargs):
         ads = Ad.objects.filter(approve=True)
